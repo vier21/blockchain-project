@@ -1,67 +1,66 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity ^0.8.0;
 
-contract CertiicateStorage {
+contract CertificateStorage {
+    
+    struct Certificate {
+        uint256 id;
+        address issuer;
+        address owner;
+        string name;
+        string issuerOrganization;
+        uint256 date; 
+        bool isValid;
+    }
 
-  struct Cert {
-    uint256 id;
-    string Issuer;
-    string Owner;
-  }
+    Certificate[] public certificates;
+    mapping(address => uint256[]) public ownerCertificates;
 
-  Cert[] public Certs;
+    event CertificateCreated(uint256 indexed id, address indexed issuer, address indexed owner);
 
-  function getCertificates() public view returns (Cert[] memory) {
-    return Certs;
-  }
+    function getCertificates() public view returns (Certificate[] memory) {
+        return certificates;
+    }
 
-  function inputCert(string memory _issuer, string memory _owner) public returns (string memory) {
-        Cert memory newCert = Cert({
-            id: Certs.length,
-            Issuer: _issuer,
-            Owner: _owner
+    function issueCertificate(address _to, string memory _name, string memory _issuerOrganization) public returns (uint256) {
+        uint256 newId = certificates.length;
+
+        Certificate memory newCertificate = Certificate({
+            id: newId,
+            issuer: msg.sender,
+            owner: _to,
+            name: _name,
+            issuerOrganization: _issuerOrganization,
+            date: block.timestamp,
+            isValid: true
         });
 
-        Certs.push(newCert);
+        certificates.push(newCertificate);
+        ownerCertificates[_to].push(newId);
 
-        string memory msgId = string(abi.encodePacked("Id Certificate with number ", toString(newCert.id)));
+        emit CertificateCreated(newId, msg.sender, _to);
 
-        return msgId;
+        return newId;
     }
 
-
-  function validateCert(uint256 _id) public view returns (string memory){
-    bool cek = false;
-    for(uint256 i = 0; i < Certs.length;i++){
-      if (Certs[i].id == _id){
-        cek = true;
-      }
-    }
-
-    if(cek){
-      return "Data Validated";
-    }else{
-      return "Data Missing";
-    }
-  }
-
-   function toString(uint256 value) internal pure returns (string memory) {
-        if (value == 0) {
-            return "0";
+    function validateCertificate(uint256 _id) public view returns (string memory) {
+        require(_id < certificates.length, "Invalid certificate ID");
+        
+        if (certificates[_id].isValid) {
+            return "Certificate is Valid";
+        } else {
+            return "Certificate is Invalid";
         }
-        uint256 temp = value;
-        uint256 digits;
-        while (temp != 0) {
-            digits++;
-            temp /= 10;
-        }
-        bytes memory buffer = new bytes(digits);
-        while (value != 0) {
-            digits -= 1;
-            buffer[digits] = bytes1(uint8(48 + (value % 10)));
-            value /= 10;
-        }
-        return string(buffer);
     }
 
+    function invalidateCertificate(uint256 _id) public {
+        require(_id < certificates.length, "Invalid certificate ID");
+        require(msg.sender == certificates[_id].issuer, "You are not the issuer of this certificate");
+
+        certificates[_id].isValid = false;
+    }
+
+    function getOwnerCertificates(address _owner) public view returns (uint256[] memory) {
+        return ownerCertificates[_owner];
+    }
 }

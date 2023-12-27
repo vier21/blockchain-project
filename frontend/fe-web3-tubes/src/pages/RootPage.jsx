@@ -26,6 +26,26 @@ function RootPage(){
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    -
+
     return(
         <div className="flex flex-col w-full h-full justify-center items-center place-content-center bg-slate-500">
             <div className="w-96 h-96 bg-green-400">
