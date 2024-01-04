@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  width: 100vw;
+  height: 100vh;
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Set the flex direction to column */
+  position: relative; /* Set positioning context to relative */
+  width: 100%; /* Set width to 100% of its parent container */
+  height: 100%; /* Set height to 100% of its parent container */
+  background-color: rgb(
+    71 85 105
+  ); /* Background color corresponding to bg-slate-600 */
+}
